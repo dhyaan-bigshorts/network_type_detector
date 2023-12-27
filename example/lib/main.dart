@@ -25,7 +25,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-    _networkStatusSubscription = _networkTypeDetectorPlugin.onNetworkStateChanged.listen((event) {
+    _networkStatusSubscription =
+        _networkTypeDetectorPlugin.onNetworkStateChanged.listen((event) {
       setState(() {
         _networkStatusStream = event.toString();
       });
@@ -52,8 +53,6 @@ class _MyAppState extends State<MyApp> {
       _networkStatus = status;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {

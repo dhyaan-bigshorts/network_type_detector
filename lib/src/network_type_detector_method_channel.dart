@@ -10,7 +10,7 @@ class MethodChannelNetworkTypeDetector extends NetworkTypeDetectorPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('network_type_detector');
 
-    @visibleForTesting
+  @visibleForTesting
   final eventChannel = const EventChannel('network_type_detector_status');
 
   Stream<NetworkStatus>? _onNetworkStateChanged;

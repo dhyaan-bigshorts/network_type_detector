@@ -9,7 +9,8 @@ abstract class NetworkTypeDetectorPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static NetworkTypeDetectorPlatform _instance = MethodChannelNetworkTypeDetector();
+  static NetworkTypeDetectorPlatform _instance =
+      MethodChannelNetworkTypeDetector();
 
   /// The default instance of [NetworkTypeDetectorPlatform] to use.
   ///
