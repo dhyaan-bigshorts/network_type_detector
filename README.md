@@ -1,5 +1,7 @@
 # network_type_detector
 
+[![Pub](https://img.shields.io/pub/v/network_type_detector.svg?style=flat-square)](https://pub.dartlang.org/packages/network_type_detector)
+
 This package allows your Flutter app to detect the current network type, supporting 2G, 3G, 4G, 5G, and Wi-Fi.
 
 "network_type_detector" is a Flutter package inspired by the connection_network_type library. This package has been updated to support configurations for the Android namespace. Additionally, it is designed to use specific Android APIs based on different versions of Android. This approach allows the package to better adapt to various versions of the Android system, providing accurate network connection type detection. This is particularly important for the development of cross-platform applications.

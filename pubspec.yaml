@@ -1,6 +1,6 @@
 name: network_type_detector
 description: "This package allows your Flutter app to detect the current network type, supporting 2G, 3G, 4G, 5G, and Wi-Fi."
-version: 1.0.0
+version: 1.0.1
 homepage: 'https://github.com/tatsuyuki25/network_type_detector'
 
 environment:
