@@ -16,36 +16,44 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _networkStatus = 'Unknown';
+  String _networkStatusStream = 'Unknown';
+  late final StreamSubscription _networkStatusSubscription;
   final _networkTypeDetectorPlugin = NetworkTypeDetector();
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    _networkStatusSubscription = _networkTypeDetectorPlugin.onNetworkStateChanged.listen((event) {
+      setState(() {
+        _networkStatusStream = event.toString();
+      });
+    });
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _networkTypeDetectorPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+  @override
+  void dispose() {
+    _networkStatusSubscription.cancel();
+    super.dispose();
+  }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
+  Future<void> initPlatformState() async {
+    String status;
+    try {
+      status =
+          (await _networkTypeDetectorPlugin.currentNetworkStatus()).toString();
+    } on PlatformException {
+      status = 'Failed to get platform version.';
+    }
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _networkStatus = status;
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +63,12 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            children: [
+              Text('Running on: $_networkStatus\n'),
+              Text('Running on Change: $_networkStatusStream'),
+            ],
+          ),
         ),
       ),
     );

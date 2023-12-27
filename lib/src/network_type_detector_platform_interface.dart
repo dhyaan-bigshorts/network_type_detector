@@ -1,5 +1,6 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'network_status.dart';
 import 'network_type_detector_method_channel.dart';
 
 abstract class NetworkTypeDetectorPlatform extends PlatformInterface {
@@ -23,7 +24,8 @@ abstract class NetworkTypeDetectorPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
-  }
+  Stream<NetworkStatus> get onNetworkStateChanged;
+
+  /// currentNetworkStatus obtain the status network
+  Future<NetworkStatus> currentNetworkStatus();
 }

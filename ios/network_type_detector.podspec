@@ -5,16 +5,17 @@
 Pod::Spec.new do |s|
   s.name             = 'network_type_detector'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'This package allows your Flutter app to detect the current network type, supporting 2G, 3G, 4G, 5G, and Wi-Fi.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+  This package allows your Flutter app to detect the current network type, supporting 2G, 3G, 4G, 5G, and Wi-Fi.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/tatsuyuki25/network_type_detector'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'tatsuyuki' => 'jordandes@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
+  s.dependency 'ReachabilitySwift'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.
