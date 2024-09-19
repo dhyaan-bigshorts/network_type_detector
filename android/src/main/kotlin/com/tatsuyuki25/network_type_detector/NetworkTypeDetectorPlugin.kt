@@ -18,7 +18,6 @@ import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** NetworkTypeDetectorPlugin */
 class NetworkTypeDetectorPlugin : FlutterPlugin, MethodCallHandler, EventChannel.StreamHandler {
@@ -36,12 +35,12 @@ class NetworkTypeDetectorPlugin : FlutterPlugin, MethodCallHandler, EventChannel
         channel.setMethodCallHandler(this)
 
         eventChannel =
-            EventChannel(flutterPluginBinding.binaryMessenger, "network_type_detector_status")
+                EventChannel(flutterPluginBinding.binaryMessenger, "network_type_detector_status")
         eventChannel.setStreamHandler(this)
 
         context = flutterPluginBinding.applicationContext
         connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     }
 
@@ -49,7 +48,11 @@ class NetworkTypeDetectorPlugin : FlutterPlugin, MethodCallHandler, EventChannel
         if (call.method == "networkStatus") {
             result.success(getNetworkState(connectivityManager, telephonyManager))
         } else {
-            result.notImplemented()
+            if (call.method == "getPlatformVersion") {
+                result.success("Android ${android.os.Build.VERSION.RELEASE}")
+            } else {
+                result.notImplemented()
+            }
         }
     }
 
@@ -64,7 +67,7 @@ class NetworkTypeDetectorPlugin : FlutterPlugin, MethodCallHandler, EventChannel
         } else {
             if (broadcastReceiver == null) {
                 broadcastReceiver =
-                    NetworkBroadcastReceiver(events, connectivityManager, telephonyManager)
+                        NetworkBroadcastReceiver(events, connectivityManager, telephonyManager)
             }
             val filter = IntentFilter()
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
@@ -84,9 +87,9 @@ class NetworkTypeDetectorPlugin : FlutterPlugin, MethodCallHandler, EventChannel
 }
 
 private class NetworkBroadcastReceiver(
-    val events: EventChannel.EventSink?,
-    val connectivityManager: ConnectivityManager,
-    val telephonyManager: TelephonyManager
+        val events: EventChannel.EventSink?,
+        val connectivityManager: ConnectivityManager,
+        val telephonyManager: TelephonyManager
 ) : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onReceive(p0: Context?, p1: Intent?) {
@@ -96,9 +99,9 @@ private class NetworkBroadcastReceiver(
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private class NetworkCallback(
-    val events: EventChannel.EventSink?,
-    val connectivityManager: ConnectivityManager,
-    val telephonyManager: TelephonyManager
+        val events: EventChannel.EventSink?,
+        val connectivityManager: ConnectivityManager,
+        val telephonyManager: TelephonyManager
 ) : ConnectivityManager.NetworkCallback() {
     override fun onAvailable(network: android.net.Network) {
         super.onAvailable(network)
@@ -113,21 +116,20 @@ private class NetworkCallback(
             events?.success(NetworkState.UNREACHABLE.toString())
         }
     }
-
 }
 
 // Get network status
 private fun getNetworkState(
-    connectivityManager: ConnectivityManager,
-    telephonyManager: TelephonyManager
+        connectivityManager: ConnectivityManager,
+        telephonyManager: TelephonyManager
 ): String {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         val network = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(network)
-            ?: return NetworkState.UNREACHABLE.toString()
-        if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(
-                NetworkCapabilities.TRANSPORT_ETHERNET
-            )
+        val capabilities =
+                connectivityManager.getNetworkCapabilities(network)
+                        ?: return NetworkState.UNREACHABLE.toString()
+        if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
         ) {
             return NetworkState.WIFI.toString()
         }
@@ -141,14 +143,16 @@ private fun getNetworkState(
             return NetworkState.UNREACHABLE.toString()
         }
         return when (networkInfo.type) {
-            ConnectivityManager.TYPE_ETHERNET, ConnectivityManager.TYPE_WIFI, ConnectivityManager.TYPE_WIMAX -> {
+            ConnectivityManager.TYPE_ETHERNET,
+            ConnectivityManager.TYPE_WIFI,
+            ConnectivityManager.TYPE_WIMAX -> {
                 NetworkState.WIFI.toString()
             }
-
-            ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_MOBILE_DUN, ConnectivityManager.TYPE_MOBILE_HIPRI -> {
+            ConnectivityManager.TYPE_MOBILE,
+            ConnectivityManager.TYPE_MOBILE_DUN,
+            ConnectivityManager.TYPE_MOBILE_HIPRI -> {
                 getMobileNetworkType(connectivityManager, telephonyManager)
             }
-
             else -> NetworkState.UNREACHABLE.toString()
         }
     }
@@ -156,37 +160,41 @@ private fun getNetworkState(
 }
 
 private fun getMobileNetworkType(
-    connectivityManager: ConnectivityManager,
-    telephonyManager: TelephonyManager
+        connectivityManager: ConnectivityManager,
+        telephonyManager: TelephonyManager
 ): String {
-    val subType: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        telephonyManager.dataNetworkType
-    } else {
-        val networkInfo = connectivityManager.activeNetworkInfo
-            ?: return NetworkState.MOBILE_OTHER.toString()
-        networkInfo.subtype
-    }
-    val mobile2GTypes = arrayOf(
-        TelephonyManager.NETWORK_TYPE_1xRTT,
-        TelephonyManager.NETWORK_TYPE_EDGE,
-        TelephonyManager.NETWORK_TYPE_GPRS,
-        TelephonyManager.NETWORK_TYPE_CDMA,
-        TelephonyManager.NETWORK_TYPE_IDEN
-    )
+    val subType: Int =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                telephonyManager.dataNetworkType
+            } else {
+                val networkInfo =
+                        connectivityManager.activeNetworkInfo
+                                ?: return NetworkState.MOBILE_OTHER.toString()
+                networkInfo.subtype
+            }
+    val mobile2GTypes =
+            arrayOf(
+                    TelephonyManager.NETWORK_TYPE_1xRTT,
+                    TelephonyManager.NETWORK_TYPE_EDGE,
+                    TelephonyManager.NETWORK_TYPE_GPRS,
+                    TelephonyManager.NETWORK_TYPE_CDMA,
+                    TelephonyManager.NETWORK_TYPE_IDEN
+            )
     if (subType in mobile2GTypes) {
         return NetworkState.MOBILE_2G.toString()
     }
-    val mobile3GTypes = arrayOf(
-        TelephonyManager.NETWORK_TYPE_UMTS,
-        TelephonyManager.NETWORK_TYPE_EVDO_0,
-        TelephonyManager.NETWORK_TYPE_EVDO_A,
-        TelephonyManager.NETWORK_TYPE_HSDPA,
-        TelephonyManager.NETWORK_TYPE_HSUPA,
-        TelephonyManager.NETWORK_TYPE_HSPA,
-        TelephonyManager.NETWORK_TYPE_EVDO_B,
-        TelephonyManager.NETWORK_TYPE_EHRPD,
-        TelephonyManager.NETWORK_TYPE_HSPAP
-    )
+    val mobile3GTypes =
+            arrayOf(
+                    TelephonyManager.NETWORK_TYPE_UMTS,
+                    TelephonyManager.NETWORK_TYPE_EVDO_0,
+                    TelephonyManager.NETWORK_TYPE_EVDO_A,
+                    TelephonyManager.NETWORK_TYPE_HSDPA,
+                    TelephonyManager.NETWORK_TYPE_HSUPA,
+                    TelephonyManager.NETWORK_TYPE_HSPA,
+                    TelephonyManager.NETWORK_TYPE_EVDO_B,
+                    TelephonyManager.NETWORK_TYPE_EHRPD,
+                    TelephonyManager.NETWORK_TYPE_HSPAP
+            )
     if (subType in mobile3GTypes) {
         return NetworkState.MOBILE_3G.toString()
     }
