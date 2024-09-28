@@ -163,48 +163,60 @@ private fun getMobileNetworkType(
         connectivityManager: ConnectivityManager,
         telephonyManager: TelephonyManager
 ): String {
-    val subType: Int =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                telephonyManager.dataNetworkType
-            } else {
-                val networkInfo =
-                        connectivityManager.activeNetworkInfo
-                                ?: return NetworkState.MOBILE_OTHER.toString()
-                networkInfo.subtype
-            }
-    val mobile2GTypes =
-            arrayOf(
-                    TelephonyManager.NETWORK_TYPE_1xRTT,
-                    TelephonyManager.NETWORK_TYPE_EDGE,
-                    TelephonyManager.NETWORK_TYPE_GPRS,
-                    TelephonyManager.NETWORK_TYPE_CDMA,
-                    TelephonyManager.NETWORK_TYPE_IDEN
-            )
-    if (subType in mobile2GTypes) {
-        return NetworkState.MOBILE_2G.toString()
+    return try {
+        val subType: Int =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    telephonyManager.dataNetworkType
+                } else {
+                    val networkInfo =
+                            connectivityManager.activeNetworkInfo
+                                    ?: return NetworkState.MOBILE_OTHER.toString()
+                    networkInfo.subtype
+                }
+
+        val mobile2GTypes =
+                arrayOf(
+                        TelephonyManager.NETWORK_TYPE_1xRTT,
+                        TelephonyManager.NETWORK_TYPE_EDGE,
+                        TelephonyManager.NETWORK_TYPE_GPRS,
+                        TelephonyManager.NETWORK_TYPE_CDMA,
+                        TelephonyManager.NETWORK_TYPE_IDEN
+                )
+
+        if (subType in mobile2GTypes) {
+            return NetworkState.MOBILE_2G.toString()
+        }
+
+        val mobile3GTypes =
+                arrayOf(
+                        TelephonyManager.NETWORK_TYPE_UMTS,
+                        TelephonyManager.NETWORK_TYPE_EVDO_0,
+                        TelephonyManager.NETWORK_TYPE_EVDO_A,
+                        TelephonyManager.NETWORK_TYPE_HSDPA,
+                        TelephonyManager.NETWORK_TYPE_HSUPA,
+                        TelephonyManager.NETWORK_TYPE_HSPA,
+                        TelephonyManager.NETWORK_TYPE_EVDO_B,
+                        TelephonyManager.NETWORK_TYPE_EHRPD,
+                        TelephonyManager.NETWORK_TYPE_HSPAP
+                )
+
+        if (subType in mobile3GTypes) {
+            return NetworkState.MOBILE_3G.toString()
+        }
+
+        if (subType == TelephonyManager.NETWORK_TYPE_LTE) {
+            return NetworkState.MOBILE_4G.toString()
+        }
+
+        if (subType == TelephonyManager.NETWORK_TYPE_NR) {
+            return NetworkState.MOBILE_5G.toString()
+        }
+
+        NetworkState.MOBILE_OTHER.toString()
+    } catch (e: SecurityException) {
+        // Handle the security exception gracefully here
+        NetworkState.UNREACHABLE.toString()
     }
-    val mobile3GTypes =
-            arrayOf(
-                    TelephonyManager.NETWORK_TYPE_UMTS,
-                    TelephonyManager.NETWORK_TYPE_EVDO_0,
-                    TelephonyManager.NETWORK_TYPE_EVDO_A,
-                    TelephonyManager.NETWORK_TYPE_HSDPA,
-                    TelephonyManager.NETWORK_TYPE_HSUPA,
-                    TelephonyManager.NETWORK_TYPE_HSPA,
-                    TelephonyManager.NETWORK_TYPE_EVDO_B,
-                    TelephonyManager.NETWORK_TYPE_EHRPD,
-                    TelephonyManager.NETWORK_TYPE_HSPAP
-            )
-    if (subType in mobile3GTypes) {
-        return NetworkState.MOBILE_3G.toString()
-    }
-    if (subType == TelephonyManager.NETWORK_TYPE_LTE) {
-        return NetworkState.MOBILE_4G.toString()
-    }
-    if (subType == TelephonyManager.NETWORK_TYPE_NR) {
-        return NetworkState.MOBILE_5G.toString()
-    }
-    return NetworkState.MOBILE_OTHER.toString()
 }
 
 private enum class NetworkState {
